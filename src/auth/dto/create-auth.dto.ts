@@ -25,6 +25,16 @@ export class registerAccountDto {
   role: string;
 }
 
+export class verifyEmailDto {
+  @IsNotEmpty()
+  @IsString()
+  code: string;
+
+  @IsNotEmpty()
+  @IsString()
+  checkCode: string;
+}
+
 export class loginAccountDto {
   @IsNotEmpty()
   @IsString()

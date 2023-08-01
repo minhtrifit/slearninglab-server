@@ -6,9 +6,7 @@ import { registerAccountDto } from 'src/auth/dto/create-auth.dto';
 export class MailService {
   constructor(private mailerService: MailerService) {}
 
-  async sendUserConfirmation(user: registerAccountDto, token: string) {
-    const url = `example.com/auth/confirm?token=${token}`;
-
+  async sendUserConfirmation(user: registerAccountDto, code: string) {
     // nest-cli.json
     // "assets": [
     //   {
@@ -19,11 +17,11 @@ export class MailService {
 
     await this.mailerService.sendMail({
       to: user.email,
-      subject: 'Welcome to Nice App! Confirm your Email',
+      subject: 'Welcome to Slearninglab! Confirm your Email',
       template: './confirmation',
       context: {
         name: user.name,
-        url,
+        code: code,
       },
     });
   }

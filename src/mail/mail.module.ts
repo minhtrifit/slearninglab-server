@@ -19,7 +19,7 @@ import { join } from 'path';
         tls: { rejectUnauthorized: false },
       },
       defaults: {
-        from: '"No Reply" <noreply@example.com>',
+        from: '"Slearninglab Support" <slearninglabSupport@gmail.com>',
       },
       template: {
         dir: join(__dirname, 'templates'),

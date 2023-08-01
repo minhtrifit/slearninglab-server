@@ -6,8 +6,13 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 import { Account } from '../entities/index';
-import { registerAccountDto, loginAccountDto } from './dto/create-auth.dto';
+import {
+  registerAccountDto,
+  loginAccountDto,
+  verifyEmailDto,
+} from './dto/create-auth.dto';
 import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
@@ -20,24 +25,70 @@ export class AuthService {
 
   async createNewAccount(registerAccountDto: registerAccountDto) {
     const username: string = registerAccountDto.username;
+    const email: string = registerAccountDto.email;
 
     // Check user from database
-    const user = await this.accountRepository.findOneBy({ username });
+    const userUsername = await this.accountRepository.findOneBy({ username });
+    const userEmail = await this.accountRepository.findOneBy({ email });
 
     // Create new user to database
-    if (!user) {
-      const token = Math.floor(1000 + Math.random() * 9000).toString();
+    if (!userUsername && !userEmail) {
+      const code = Math.floor(10000 + Math.random() * 9000).toString();
 
-      await this.mailService.sendUserConfirmation(registerAccountDto, token);
-
+      // Hash password
       registerAccountDto.password = await bcrypt.hash(
         registerAccountDto.password,
         10,
       );
-      return await this.accountRepository.save(registerAccountDto);
+
+      // Email code generate
+      const checkCode = jwt.sign(
+        { ...registerAccountDto, code: code },
+        'jwt_secret_key',
+        {
+          expiresIn: '60s',
+        },
+      );
+
+      // Send email method
+      await this.mailService.sendUserConfirmation(registerAccountDto, code);
+
+      // return await this.accountRepository.save(registerAccountDto);
+      return { code: code, checkCode: checkCode };
     } else {
       // Return error if user exist
-      throw new BadRequestException('Account username is already exist');
+      throw new BadRequestException('Account is already exist');
+    }
+  }
+
+  async verifyEmailRegister(verifyEmailDto: verifyEmailDto) {
+    try {
+      const checkCode: string = verifyEmailDto.checkCode;
+      if (checkCode) {
+        const result = await jwt.verify(checkCode, 'jwt_secret_key');
+        if (result.code === verifyEmailDto.code) {
+          const newUser = {
+            username: result.username,
+            password: result.password,
+            name: result.name,
+            email: result.email,
+            role: result.role,
+          };
+
+          await this.accountRepository.save(newUser);
+
+          return {
+            username: result.username,
+            name: result.name,
+            email: result.email,
+            role: result.role,
+          };
+        }
+      } else {
+        throw new BadRequestException('Code is missing');
+      }
+    } catch (error) {
+      throw new BadRequestException('Incorrect verify code or outdate');
     }
   }
 

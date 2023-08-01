@@ -6,7 +6,11 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { registerAccountDto, loginAccountDto } from './dto/create-auth.dto';
+import {
+  registerAccountDto,
+  loginAccountDto,
+  verifyEmailDto,
+} from './dto/create-auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -16,6 +20,12 @@ export class AuthController {
   @UsePipes(ValidationPipe)
   createNewAccount(@Body() registerAccountDto: registerAccountDto) {
     return this.authService.createNewAccount(registerAccountDto);
+  }
+
+  @Post('/verifyEmail')
+  @UsePipes(ValidationPipe)
+  verifyEmailRegister(@Body() verifyEmailDto: verifyEmailDto) {
+    return this.authService.verifyEmailRegister(verifyEmailDto);
   }
 
   @Post('/login')
