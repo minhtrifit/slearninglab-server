@@ -14,6 +14,7 @@ import {
   verifyEmailDto,
 } from './dto/create-auth.dto';
 import { MailService } from 'src/mail/mail.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -21,15 +22,24 @@ export class AuthService {
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
     private readonly mailService: MailService,
+    private readonly configService: ConfigService,
   ) {}
+
+  async getUserByUsername(username: string) {
+    return await this.accountRepository.findOneBy({ username });
+  }
+
+  async getUserByEmail(email: string) {
+    return await this.accountRepository.findOneBy({ email });
+  }
 
   async createNewAccount(registerAccountDto: registerAccountDto) {
     const username: string = registerAccountDto.username;
     const email: string = registerAccountDto.email;
 
     // Check user from database
-    const userUsername = await this.accountRepository.findOneBy({ username });
-    const userEmail = await this.accountRepository.findOneBy({ email });
+    const userUsername = await this.getUserByUsername(username);
+    const userEmail = await this.getUserByEmail(email);
 
     // Create new user to database
     if (!userUsername && !userEmail) {
@@ -44,7 +54,7 @@ export class AuthService {
       // Email code generate
       const checkCode = jwt.sign(
         { ...registerAccountDto, code: code },
-        'jwt_secret_key',
+        this.configService.get('JWT_KEY_SECRET'),
         {
           expiresIn: '60s',
         },
@@ -62,11 +72,16 @@ export class AuthService {
   }
 
   async verifyEmailRegister(verifyEmailDto: verifyEmailDto) {
-    try {
-      const checkCode: string = verifyEmailDto.checkCode;
-      if (checkCode) {
-        const result = await jwt.verify(checkCode, 'jwt_secret_key');
-        if (result.code === verifyEmailDto.code) {
+    const code: string = verifyEmailDto.code;
+    const checkCode: string = verifyEmailDto.checkCode;
+    if (checkCode) {
+      try {
+        const result: any = await jwt.verify(
+          checkCode,
+          this.configService.get('JWT_KEY_SECRET'),
+        );
+
+        if (code === result.code) {
           const newUser = {
             username: result.username,
             password: result.password,
@@ -75,7 +90,10 @@ export class AuthService {
             role: result.role,
           };
 
-          await this.accountRepository.save(newUser);
+          const checkUser = await this.getUserByUsername(newUser.username);
+
+          if (!checkUser) await this.accountRepository.save(newUser);
+          else throw new BadRequestException('Account is already exist');
 
           return {
             username: result.username,
@@ -83,13 +101,13 @@ export class AuthService {
             email: result.email,
             role: result.role,
           };
+        } else {
+          throw new BadRequestException('Verify code incorrect or outdate');
         }
-      } else {
-        throw new BadRequestException('Code is missing');
+      } catch (error) {
+        throw new BadRequestException('Verify code incorrect or outdate');
       }
-    } catch (error) {
-      throw new BadRequestException('Incorrect verify code or outdate');
-    }
+    } else throw new NotFoundException('Verify code not found');
   }
 
   async loginAccount(loginAccountDto: loginAccountDto) {
