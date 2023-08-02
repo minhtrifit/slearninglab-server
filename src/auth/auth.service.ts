@@ -2,6 +2,8 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  ForbiddenException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -15,6 +17,7 @@ import {
 } from './dto/create-auth.dto';
 import { MailService } from 'src/mail/mail.service';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -23,6 +26,7 @@ export class AuthService {
     private readonly accountRepository: Repository<Account>,
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async getUserByUsername(username: string) {
@@ -31,6 +35,40 @@ export class AuthService {
 
   async getUserByEmail(email: string) {
     return await this.accountRepository.findOneBy({ email });
+  }
+
+  async getTokens(id: string, username: string) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          id: id,
+          username: username,
+        },
+        {
+          secret: 'accesskey',
+          expiresIn: '20s',
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          id: id,
+          username: username,
+        },
+        {
+          secret: 'refreshkey',
+          expiresIn: '60s',
+        },
+      ),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async getAllUsers() {
+    return await this.accountRepository.find();
   }
 
   async createNewAccount(registerAccountDto: registerAccountDto) {
@@ -119,10 +157,20 @@ export class AuthService {
 
     if (user) {
       const checkPassword = await bcrypt.compare(password, user.password);
-      if (checkPassword) return user;
+      if (checkPassword) return await this.getTokens(user?.id, user.username);
       else throw new BadRequestException('Username or password incorrect');
     } else {
       throw new NotFoundException('Username not found');
     }
+  }
+
+  async refreshToken(username: string) {
+    const user = await this.getUserByUsername(username);
+
+    if (!user) throw new ForbiddenException('Access Denied');
+    return {
+      message: 'Refresh token successfully',
+      tokens: await this.getTokens(user?.id, user.username),
+    };
   }
 }
