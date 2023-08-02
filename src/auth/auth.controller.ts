@@ -27,7 +27,7 @@ export class AuthController {
     return this.authService.createNewAccount(registerAccountDto);
   }
 
-  @Post('/')
+  @Post('verifyEmail')
   @UsePipes(ValidationPipe)
   verifyEmailRegister(@Body() verifyEmailDto: verifyEmailDto) {
     return this.authService.verifyEmailRegister(verifyEmailDto);
@@ -47,7 +47,7 @@ export class AuthController {
   }
 
   @UseGuards(AccessTokenGuard)
-  @Get('/view/users')
+  @Get('view/users')
   getAllUsers() {
     return this.authService.getAllUsers();
   }

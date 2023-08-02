@@ -45,7 +45,7 @@ export class AuthService {
           username: username,
         },
         {
-          secret: 'accesskey',
+          secret: process.env.JWT_ACCESS_KEY,
           expiresIn: '20s',
         },
       ),
@@ -55,7 +55,7 @@ export class AuthService {
           username: username,
         },
         {
-          secret: 'refreshkey',
+          secret: process.env.JWT_REFRESH_KEY,
           expiresIn: '60s',
         },
       ),
