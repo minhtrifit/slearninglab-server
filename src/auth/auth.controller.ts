@@ -16,6 +16,9 @@ import {
 } from './dto/create-auth.dto';
 import { AccessTokenGuard } from './guard/accessToken.guard';
 import { RefreshTokenGuard } from './guard/refreshToken.guard';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
+import { HasRoles } from './decorator/role.decorator';
+import { Role } from 'src/models/role.enum';
 
 @Controller('auth')
 export class AuthController {
@@ -50,5 +53,12 @@ export class AuthController {
   @Get('view/users')
   getAllUsers() {
     return this.authService.getAllUsers();
+  }
+
+  @HasRoles(Role.Teacher)
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Get('roles/teacher')
+  checkRoles() {
+    return 'Check teacher role ok';
   }
 }

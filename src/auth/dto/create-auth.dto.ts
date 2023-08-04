@@ -1,5 +1,12 @@
-import { IsNotEmpty, IsString, IsEnum, IsEmail } from 'class-validator';
-import { Roles } from 'src/utils/roles.enum';
+import {
+  IsNotEmpty,
+  IsString,
+  IsEnum,
+  IsEmail,
+  IsArray,
+  ArrayNotEmpty,
+} from 'class-validator';
+import { Role } from 'src/models/role.enum';
 
 export class registerAccountDto {
   @IsNotEmpty()
@@ -20,9 +27,10 @@ export class registerAccountDto {
   email: string;
 
   @IsNotEmpty()
-  @IsString()
-  @IsEnum(Roles)
-  role: string;
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsEnum(Role, { each: true })
+  roles: Role[];
 }
 
 export class verifyEmailDto {

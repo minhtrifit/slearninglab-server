@@ -18,6 +18,7 @@ import {
 import { MailService } from 'src/mail/mail.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from 'src/models/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -37,12 +38,13 @@ export class AuthService {
     return await this.accountRepository.findOneBy({ email });
   }
 
-  async getTokens(id: string, username: string) {
+  async getTokens(id: string, username: string, roles: Role[]) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           id: id,
           username: username,
+          roles: roles,
         },
         {
           secret: process.env.JWT_ACCESS_KEY,
@@ -53,6 +55,7 @@ export class AuthService {
         {
           id: id,
           username: username,
+          roles: roles,
         },
         {
           secret: process.env.JWT_REFRESH_KEY,
@@ -125,7 +128,7 @@ export class AuthService {
             password: result.password,
             name: result.name,
             email: result.email,
-            role: result.role,
+            roles: result.roles,
           };
 
           const checkUser = await this.getUserByUsername(newUser.username);
@@ -137,7 +140,7 @@ export class AuthService {
             username: result.username,
             name: result.name,
             email: result.email,
-            role: result.role,
+            roles: result.roles,
           };
         } else {
           throw new BadRequestException('Verify code incorrect or outdate');
@@ -157,7 +160,8 @@ export class AuthService {
 
     if (user) {
       const checkPassword = await bcrypt.compare(password, user.password);
-      if (checkPassword) return await this.getTokens(user?.id, user.username);
+      if (checkPassword)
+        return await this.getTokens(user?.id, user.username, user.roles);
       else throw new BadRequestException('Username or password incorrect');
     } else {
       throw new NotFoundException('Username not found');
@@ -170,7 +174,7 @@ export class AuthService {
     if (!user) throw new ForbiddenException('Access Denied');
     return {
       message: 'Refresh token successfully',
-      tokens: await this.getTokens(user?.id, user.username),
+      tokens: await this.getTokens(user?.id, user.username, user.roles),
     };
   }
 }

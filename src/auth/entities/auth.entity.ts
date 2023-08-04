@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Role } from 'src/models/role.enum';
 
 @Entity()
 export class Account {
@@ -17,6 +18,6 @@ export class Account {
   @Column()
   email: string;
 
-  @Column()
-  role: string;
+  @Column('text', { array: true })
+  roles: Role[];
 }
