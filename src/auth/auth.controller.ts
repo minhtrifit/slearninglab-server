@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Body,
+  RawBodyRequest,
   ValidationPipe,
   UsePipes,
   UseGuards,
@@ -26,7 +27,9 @@ export class AuthController {
 
   @Post('register')
   @UsePipes(ValidationPipe)
-  createNewAccount(@Body() registerAccountDto: registerAccountDto) {
+  createNewAccount(@Req() req: RawBodyRequest<Request>) {
+    const data: any = req.body;
+    const registerAccountDto: registerAccountDto = data.body;
     return this.authService.createNewAccount(registerAccountDto);
   }
 
