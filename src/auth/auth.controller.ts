@@ -35,7 +35,9 @@ export class AuthController {
 
   @Post('verifyEmail')
   @UsePipes(ValidationPipe)
-  verifyEmailRegister(@Body() verifyEmailDto: verifyEmailDto) {
+  verifyEmailRegister(@Req() req: RawBodyRequest<Request>) {
+    const data: any = req.body;
+    const verifyEmailDto: verifyEmailDto = data.body;
     return this.authService.verifyEmailRegister(verifyEmailDto);
   }
 
