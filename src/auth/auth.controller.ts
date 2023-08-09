@@ -43,8 +43,18 @@ export class AuthController {
 
   @Post('login')
   @UsePipes(ValidationPipe)
-  loginAccount(@Body() loginAccountDto: loginAccountDto) {
+  loginAccount(@Req() req: RawBodyRequest<Request>) {
+    const data: any = req.body;
+    const loginAccountDto: loginAccountDto = data.body;
     return this.authService.loginAccount(loginAccountDto);
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Post('verify')
+  verifyAccessToken(@Req() req: any) {
+    const headerAuth = req?.headers?.authorization?.split(' ')[1];
+    // console.log(headerAuth);
+    return this.authService.verifyAccessToken(headerAuth);
   }
 
   @UseGuards(RefreshTokenGuard)

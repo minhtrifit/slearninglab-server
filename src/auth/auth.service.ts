@@ -48,7 +48,7 @@ export class AuthService {
         },
         {
           secret: process.env.JWT_ACCESS_KEY,
-          expiresIn: '20s',
+          expiresIn: '1d',
         },
       ),
       this.jwtService.signAsync(
@@ -59,12 +59,15 @@ export class AuthService {
         },
         {
           secret: process.env.JWT_REFRESH_KEY,
-          expiresIn: '60s',
+          expiresIn: '30s',
         },
       ),
     ]);
 
+    const user = await this.getUserByUsername(username);
+
     return {
+      ...user,
       accessToken,
       refreshToken,
     };
@@ -170,11 +173,24 @@ export class AuthService {
 
   async refreshToken(username: string) {
     const user = await this.getUserByUsername(username);
+    // console.log(user);
 
     if (!user) throw new ForbiddenException('Access Denied');
     return {
       message: 'Refresh token successfully',
       tokens: await this.getTokens(user?.id, user.username, user.roles),
+    };
+  }
+
+  async verifyAccessToken(accessToken: string) {
+    const data: any = await jwt.verify(
+      accessToken,
+      this.configService.get('JWT_ACCESS_KEY'),
+    );
+
+    return {
+      message: 'Access token valid',
+      data: await this.getUserByUsername(data?.username),
     };
   }
 }
