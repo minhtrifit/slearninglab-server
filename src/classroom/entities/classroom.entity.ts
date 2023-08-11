@@ -22,4 +22,7 @@ export class Classroom {
 
   @Column()
   img: string;
+
+  @Column()
+  dateCreated: Date;
 }
