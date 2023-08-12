@@ -5,3 +5,17 @@ export class userConnectDto {
   @IsString()
   username: string;
 }
+
+export class joinClassDto {
+  @IsNotEmpty()
+  @IsString()
+  username: string;
+
+  @IsNotEmpty()
+  @IsString()
+  teacherUsername: string;
+
+  @IsNotEmpty()
+  @IsString()
+  classId: string;
+}

@@ -6,3 +6,10 @@ export interface jwtResultEmailRegister {
   role: string;
   code: string;
 }
+
+export interface AttendanceType {
+  id?: string;
+  classId: string;
+  userJoinedId: string;
+  dateJoined: Date;
+}

@@ -8,7 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { SocketService } from './socket.service';
 import { Server, Socket } from 'socket.io';
-import { userConnectDto } from './dto/create-socket.dto';
+import { userConnectDto, joinClassDto } from './dto/create-socket.dto';
 
 @WebSocketGateway({
   cors: {
@@ -34,6 +34,18 @@ export class SocketGateway implements OnGatewayDisconnect {
       this.server,
       client,
       userConnectDto.username,
+    );
+  }
+
+  @SubscribeMessage('join_class_request')
+  joinClassRequest(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() joinClassDto,
+  ) {
+    return this.socketService.joinClassRequest(
+      this.server,
+      client,
+      joinClassDto,
     );
   }
 }

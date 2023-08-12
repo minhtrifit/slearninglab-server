@@ -2,18 +2,23 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Classroom } from './entities/classroom.entity';
+import { Attendance } from './entities/classroom.entity';
 
 import { createClassDto } from './dto/create-classroom.dto';
+import { AttendanceType } from 'src/types';
 
 @Injectable()
 export class ClassroomService {
   constructor(
     @InjectRepository(Classroom)
     private readonly classroomRepository: Repository<Classroom>,
+    @InjectRepository(Attendance)
+    private readonly attendanceRepository: Repository<Attendance>,
   ) {}
 
   async createClassroom(classroom: createClassDto) {
@@ -23,10 +28,29 @@ export class ClassroomService {
     });
 
     if (!checkClassroom) {
-      await this.classroomRepository.save(classroom);
+      const rs = await this.classroomRepository.save(classroom);
+
+      const attanceData: AttendanceType = {
+        classId: rs.id,
+        userJoinedId: rs.teacherUsername,
+        dateJoined: rs.dateCreated,
+      };
+
+      await this.attendanceRepository.save(attanceData);
+
       return classroom;
     } else {
       throw new BadRequestException('Classroom name is exist');
+    }
+  }
+
+  async getAllClasses() {
+    const classList = await this.classroomRepository.find();
+
+    if (classList.length !== 0) {
+      return classList;
+    } else {
+      throw new NotFoundException('Class data is empty');
     }
   }
 
@@ -42,5 +66,78 @@ export class ClassroomService {
     } else {
       throw new NotFoundException('Not found class by username');
     }
+  }
+
+  async checkUserAttendance(username: string) {
+    const checkUser = await this.attendanceRepository.find({
+      where: {
+        userJoinedId: username,
+      },
+    });
+
+    if (checkUser.length === 0) return false;
+    else return true;
+  }
+
+  async getClassInfoById(id: string, username: string) {
+    const checkUserAttendance = await this.checkUserAttendance(username);
+
+    if (checkUserAttendance === true) {
+      const targetClass = await this.classroomRepository.find({
+        where: {
+          id: id,
+        },
+      });
+
+      if (targetClass.length !== 0) {
+        return targetClass[0];
+      } else {
+        throw new NotFoundException('Not found class by id');
+      }
+    } else {
+      throw new UnauthorizedException('User not joined this class');
+    }
+  }
+
+  async getClassJoinedByUsername(username: string) {
+    const attendanceList = await this.attendanceRepository.find({
+      where: {
+        userJoinedId: username,
+      },
+    });
+
+    if (attendanceList.length !== 0) {
+      const classJoinedList = [];
+
+      await Promise.all(
+        attendanceList.map(async (item) => {
+          const check: any = await this.classroomRepository.find({
+            where: {
+              id: item.classId,
+            },
+          });
+          classJoinedList.push(check[0]);
+        }),
+      );
+
+      return classJoinedList;
+    } else {
+      throw new NotFoundException('User not joined any class');
+    }
+  }
+
+  async acceptJoinClass(acceptJoinClassDto: AttendanceType) {
+    const checkExist = await this.attendanceRepository.find({
+      where: {
+        classId: acceptJoinClassDto.classId,
+        userJoinedId: acceptJoinClassDto.userJoinedId,
+      },
+    });
+
+    if (checkExist.length === 0) {
+      await this.attendanceRepository.save(acceptJoinClassDto);
+    }
+
+    return acceptJoinClassDto;
   }
 }

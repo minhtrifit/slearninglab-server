@@ -29,3 +29,17 @@ export class createClassDto {
   @IsDate()
   dateCreated: Date;
 }
+
+export class acceptJoinClassDto {
+  @IsNotEmpty()
+  @IsString()
+  classId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  userJoinedId: string;
+
+  @IsNotEmpty()
+  @IsDate()
+  dateJoined: Date;
+}

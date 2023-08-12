@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { v4 } from 'uuid';
 
+import { joinClassDto } from './dto/create-socket.dto';
+
 @Injectable()
 export class SocketService {
   users: { uid: string; clientId: string; username: string }[] = [];
@@ -74,5 +76,25 @@ export class SocketService {
     server.emit('connect_users_amount', this.users.length);
 
     console.log(this.users);
+  }
+
+  joinClassRequest(server: Server, client: Socket, joinClassDto: joinClassDto) {
+    const findTeacher = this.users.filter((user) => {
+      return user.username === joinClassDto.teacherUsername;
+    });
+
+    if (findTeacher.length !== 0) {
+      const uid = v4();
+
+      // Send event to client
+      server.to(findTeacher[0].clientId).emit('join_class_notification', {
+        ...joinClassDto,
+        type: 'join',
+        id: uid,
+      });
+      return true;
+    } else {
+      return false;
+    }
   }
 }

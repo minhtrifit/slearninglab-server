@@ -26,3 +26,18 @@ export class Classroom {
   @Column()
   dateCreated: Date;
 }
+
+@Entity()
+export class Attendance {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  classId: string;
+
+  @Column()
+  userJoinedId: string;
+
+  @Column()
+  dateJoined: Date;
+}
