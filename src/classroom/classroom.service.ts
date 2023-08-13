@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Not } from 'typeorm';
 import { Classroom } from './entities/classroom.entity';
 import { Attendance } from './entities/classroom.entity';
 
@@ -100,6 +100,9 @@ export class ClassroomService {
   }
 
   async getClassJoinedByUsername(username: string) {
+    const classList = await this.getAllClasses();
+
+    // Get list user joined
     const attendanceList = await this.attendanceRepository.find({
       where: {
         userJoinedId: username,
@@ -107,20 +110,28 @@ export class ClassroomService {
     });
 
     if (attendanceList.length !== 0) {
-      const classJoinedList = [];
+      // const classJoinedList = [];
 
-      await Promise.all(
-        attendanceList.map(async (item) => {
-          const check: any = await this.classroomRepository.find({
-            where: {
-              id: item.classId,
-            },
-          });
-          classJoinedList.push(check[0]);
-        }),
-      );
+      // await Promise.all(
+      //   joinedList.map(async (item) => {
+      //     const check: any = await this.classroomRepository.find({
+      //       where: {
+      //         id: item.classId,
+      //       },
+      //     });
+      //     classJoinedList.push(check[0]);
+      //   }),
+      // );
 
-      return classJoinedList;
+      // return classJoinedList;
+
+      const joinedList = classList.filter((classroom) => {
+        return attendanceList.some((attendance) => {
+          return attendance.classId === classroom.id;
+        });
+      });
+
+      return joinedList;
     } else {
       throw new NotFoundException('User not joined any class');
     }
@@ -139,5 +150,24 @@ export class ClassroomService {
     }
 
     return acceptJoinClassDto;
+  }
+
+  async getClassCanJoinByUsername(username: string) {
+    const classList = await this.getAllClasses();
+
+    // Get list user joined
+    const joinedList = await this.attendanceRepository.find({
+      where: {
+        userJoinedId: username,
+      },
+    });
+
+    const canJoinList = classList.filter((classroom) => {
+      return joinedList.every((attendance) => {
+        return attendance.classId !== classroom.id;
+      });
+    });
+
+    return canJoinList;
   }
 }

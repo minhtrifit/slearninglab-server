@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
 
 @Entity()
 export class Classroom {
@@ -40,4 +47,8 @@ export class Attendance {
 
   @Column()
   dateJoined: Date;
+
+  @ManyToMany(() => Classroom, (classroom) => classroom.id)
+  @JoinTable()
+  classrooms: Classroom[];
 }

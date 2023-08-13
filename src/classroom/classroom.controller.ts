@@ -74,4 +74,12 @@ export class ClassroomController {
     const acceptJoinClassDto: acceptJoinClassDto = data.body;
     return this.classroomService.acceptJoinClass(acceptJoinClassDto);
   }
+
+  @UseGuards(AccessTokenGuard)
+  @UsePipes(ValidationPipe)
+  @Get('getClassCanJoinByUsername')
+  getClassCanJoinByUsername(@Req() req: Request) {
+    const username: any = req.query.username;
+    return this.classroomService.getClassCanJoinByUsername(username);
+  }
 }
