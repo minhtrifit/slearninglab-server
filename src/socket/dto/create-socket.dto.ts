@@ -19,3 +19,21 @@ export class joinClassDto {
   @IsString()
   classId: string;
 }
+
+export class acceptJoinClass {
+  @IsNotEmpty()
+  @IsString()
+  userJoinedUsername: string;
+
+  @IsNotEmpty()
+  @IsString()
+  teacherUsername: string;
+
+  @IsNotEmpty()
+  @IsString()
+  className: string;
+
+  @IsNotEmpty()
+  @IsString()
+  classId: string;
+}

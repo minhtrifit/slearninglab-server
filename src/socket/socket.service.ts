@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { v4 } from 'uuid';
 
-import { joinClassDto } from './dto/create-socket.dto';
+import { joinClassDto, acceptJoinClass } from './dto/create-socket.dto';
 
 @Injectable()
 export class SocketService {
@@ -92,6 +92,32 @@ export class SocketService {
         type: 'join',
         id: uid,
       });
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  acceptJoinClassRequest(
+    server: Server,
+    client: Socket,
+    acceptJoinClass: acceptJoinClass,
+  ) {
+    const findStudent = this.users.filter((user) => {
+      return user.username === acceptJoinClass.userJoinedUsername;
+    });
+
+    if (findStudent.length !== 0) {
+      const uid = v4();
+
+      // Send event to client
+      server
+        .to(findStudent[0].clientId)
+        .emit('accept_join_class_notification', {
+          ...acceptJoinClass,
+          type: 'accept_join',
+          id: uid,
+        });
       return true;
     } else {
       return false;
