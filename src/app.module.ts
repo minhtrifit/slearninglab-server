@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailModule } from './mail/mail.module';
 import { SocketModule } from './socket/socket.module';
 import { ClassroomModule } from './classroom/classroom.module';
+import { ExamModule } from './exam/exam.module';
 import entities from './entities';
 
 @Module({
@@ -30,6 +31,7 @@ import entities from './entities';
     AuthModule,
     SocketModule,
     ClassroomModule,
+    ExamModule,
   ],
   controllers: [AppController],
   providers: [AppService],
