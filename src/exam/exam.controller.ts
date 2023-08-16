@@ -37,4 +37,32 @@ export class ExamController {
     const classId: string = req.query.classId;
     return this.examService.getExamByClassId(classId);
   }
+
+  @UseGuards(AccessTokenGuard)
+  @UsePipes(ValidationPipe)
+  @HasRoles(Role.Teacher)
+  @Get('getDetailExamById')
+  getDetailExamById(@Req() req: any) {
+    const id: string = req.query.id;
+    return this.examService.getDetailExamById(id);
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @UsePipes(ValidationPipe)
+  @HasRoles(Role.Teacher)
+  @Get('getDetailExamNonAnsById')
+  getDetailExamNonAnsById(@Req() req: any) {
+    const id: string = req.query.id;
+    return this.examService.getDetailExamNonAnsById(id);
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @UsePipes(ValidationPipe)
+  @HasRoles(Role.Student)
+  @Post('submitExam')
+  submitExam(@Req() req: RawBodyRequest<Request>) {
+    const data: any = req.body;
+    const submitExamDto: any = data.body;
+    return this.examService.submitExam(submitExamDto);
+  }
 }
