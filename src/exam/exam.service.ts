@@ -1,9 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { CreateExamDto } from './dto/create-exam.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
 
-import { Exam, Question } from './entities/exam.entity';
+import { Exam, Question, Result } from './entities/exam.entity';
 
 @Injectable()
 export class ExamService {
@@ -12,6 +16,8 @@ export class ExamService {
     private readonly examRepository: Repository<Exam>,
     @InjectRepository(Question)
     private readonly questionRepository: Repository<Question>,
+    @InjectRepository(Result)
+    private readonly resultRepository: Repository<Result>,
   ) {}
 
   async getAllQuestion() {
@@ -114,10 +120,45 @@ export class ExamService {
       });
     });
 
-    return {
+    const findExam = await this.examRepository.find({
+      where: {
+        id: submitExamDto.examId,
+      },
+    });
+
+    const rs = await this.resultRepository.save({
+      usernameId: submitExamDto.usernameId,
+      classId: submitExamDto.classId,
       examId: submitExamDto.examId,
-      examQuestionAmount: countExamQuestion,
-      correctAns: countCorrect,
-    };
+      amount: countExamQuestion,
+      result: countCorrect,
+      date: new Date(new Date().getTime()),
+    });
+
+    if (rs && findExam?.length !== 0)
+      return { ...rs, examName: findExam[0]?.examName };
+    else throw new BadRequestException('Save exam result failed');
+  }
+
+  async deleteExam(examId: string) {
+    try {
+      await this.examRepository
+        .createQueryBuilder('exam')
+        .delete()
+        .from(Exam)
+        .where('id = :id', { id: examId })
+        .execute();
+
+      await this.questionRepository
+        .createQueryBuilder('question')
+        .delete()
+        .from(Question)
+        .where('examId = :examId', { examId: examId })
+        .execute();
+
+      return examId;
+    } catch (error) {
+      throw new BadRequestException('Delete exam failed');
+    }
   }
 }

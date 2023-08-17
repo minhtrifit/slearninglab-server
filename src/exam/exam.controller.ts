@@ -65,4 +65,14 @@ export class ExamController {
     const submitExamDto: any = data.body;
     return this.examService.submitExam(submitExamDto);
   }
+
+  @UseGuards(AccessTokenGuard)
+  @UsePipes(ValidationPipe)
+  @HasRoles(Role.Teacher)
+  @Post('deleteExam')
+  deleteExam(@Req() req: RawBodyRequest<Request>) {
+    const data: any = req.body;
+    const examId: string = data.body?.examId;
+    return this.examService.deleteExam(examId);
+  }
 }

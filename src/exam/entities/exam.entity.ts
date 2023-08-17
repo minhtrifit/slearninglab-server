@@ -38,3 +38,28 @@ export class Question {
   @Column('text', { array: true })
   img: string[];
 }
+
+@Entity()
+export class Result {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  usernameId: string;
+
+  @Column()
+  classId: string;
+
+  @Column()
+  examId: string;
+
+  @Column()
+  @Column()
+  amount: number;
+
+  @Column()
+  result: number;
+
+  @Column()
+  date: Date;
+}
