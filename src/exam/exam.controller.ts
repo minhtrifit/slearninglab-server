@@ -13,6 +13,7 @@ import { ExamService } from './exam.service';
 import { CreateExamDto } from './dto/create-exam.dto';
 
 import { AccessTokenGuard } from 'src/auth/guard/accessToken.guard';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { HasRoles } from 'src/auth/decorator/role.decorator';
 import { Role } from 'src/models/role.enum';
 
@@ -20,7 +21,7 @@ import { Role } from 'src/models/role.enum';
 export class ExamController {
   constructor(private readonly examService: ExamService) {}
 
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @UsePipes(ValidationPipe)
   @HasRoles(Role.Teacher)
   @Post('createExam')
@@ -30,7 +31,7 @@ export class ExamController {
     return this.examService.createExam(CreateExamDto);
   }
 
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @UsePipes(ValidationPipe)
   @Get('getExamByClassId')
   getExamByClassId(@Req() req: any) {
@@ -38,7 +39,7 @@ export class ExamController {
     return this.examService.getExamByClassId(classId);
   }
 
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @UsePipes(ValidationPipe)
   @HasRoles(Role.Teacher)
   @Get('getDetailExamById')
@@ -47,16 +48,16 @@ export class ExamController {
     return this.examService.getDetailExamById(id);
   }
 
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @UsePipes(ValidationPipe)
-  @HasRoles(Role.Teacher)
+  @HasRoles(Role.Student)
   @Get('getDetailExamNonAnsById')
   getDetailExamNonAnsById(@Req() req: any) {
     const id: string = req.query.id;
     return this.examService.getDetailExamNonAnsById(id);
   }
 
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @UsePipes(ValidationPipe)
   @HasRoles(Role.Student)
   @Post('submitExam')
@@ -66,7 +67,7 @@ export class ExamController {
     return this.examService.submitExam(submitExamDto);
   }
 
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @UsePipes(ValidationPipe)
   @HasRoles(Role.Teacher)
   @Post('deleteExam')

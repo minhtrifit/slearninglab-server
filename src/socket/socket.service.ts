@@ -197,12 +197,12 @@ export class SocketService {
   }
 
   findAll(room: string) {
-    console.log('BEFORE', this.messages);
+    // console.log('BEFORE', this.messages);
     const roomMessages = this.messages.filter((msg) => {
       return msg.room === room;
     });
 
-    console.log('AFTER', roomMessages);
+    // console.log('AFTER', roomMessages);
 
     return roomMessages;
   }

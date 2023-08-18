@@ -21,7 +21,7 @@ import { createClassDto, acceptJoinClassDto } from './dto/create-classroom.dto';
 export class ClassroomController {
   constructor(private readonly classroomService: ClassroomService) {}
 
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @UsePipes(ValidationPipe)
   @HasRoles(Role.Teacher)
   @Post('create')
@@ -31,7 +31,7 @@ export class ClassroomController {
     return this.classroomService.createClassroom(createClassDto);
   }
 
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @UsePipes(ValidationPipe)
   @HasRoles(Role.Teacher)
   @Get('getClassByUsername')
@@ -40,7 +40,7 @@ export class ClassroomController {
     return this.classroomService.getClassByUsername(username);
   }
 
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @UsePipes(ValidationPipe)
   @HasRoles(Role.Student)
   @Get('getAllClasses')
@@ -65,7 +65,7 @@ export class ClassroomController {
     return this.classroomService.getClassJoinedByUsername(username);
   }
 
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @UsePipes(ValidationPipe)
   @HasRoles(Role.Teacher)
   @Post('acceptJoinClass')
