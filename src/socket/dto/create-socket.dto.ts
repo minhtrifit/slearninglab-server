@@ -37,3 +37,17 @@ export class acceptJoinClass {
   @IsString()
   classId: string;
 }
+
+export class CreateChatDto {
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  text: string;
+
+  @IsNotEmpty()
+  @IsString()
+  room: string;
+}

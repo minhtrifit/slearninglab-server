@@ -12,6 +12,7 @@ import {
   userConnectDto,
   joinClassDto,
   acceptJoinClass,
+  CreateChatDto,
 } from './dto/create-socket.dto';
 
 @WebSocketGateway({
@@ -63,5 +64,55 @@ export class SocketGateway implements OnGatewayDisconnect {
       client,
       acceptJoinClass,
     );
+  }
+
+  @SubscribeMessage('createChat')
+  async create(
+    @MessageBody() createChatDto: CreateChatDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const message = await this.socketService.createChat(
+      createChatDto,
+      client.id,
+    );
+
+    // Send event to client
+    this.server.to(createChatDto.room).emit('message', message);
+
+    return message;
+  }
+
+  @SubscribeMessage('findAllChat')
+  findAll(@MessageBody() { room }) {
+    return this.socketService.findAll(room);
+  }
+
+  @SubscribeMessage('joinClassChat')
+  joinRoom(
+    @MessageBody('name') name: string,
+    @MessageBody('room') room: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.join(room);
+
+    // console.log(client.rooms);
+
+    return this.socketService.identify(name, client.id, room);
+  }
+
+  @SubscribeMessage('typing')
+  async typing(
+    @MessageBody('isTyping') isTyping: boolean,
+    @MessageBody('room') room: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const name = await this.socketService.getClientName(client.id);
+
+    // Send event to client
+    if (room) {
+      this.server.to(room).emit('typing', { name, isTyping });
+    } else {
+      this.server.emit('typing', { name, isTyping });
+    }
   }
 }

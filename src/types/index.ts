@@ -13,3 +13,9 @@ export interface AttendanceType {
   userJoinedId: string;
   dateJoined: Date;
 }
+
+export class ChatType {
+  name: string;
+  text: string;
+  room: string;
+}
