@@ -8,6 +8,7 @@ import { MailModule } from './mail/mail.module';
 import { SocketModule } from './socket/socket.module';
 import { ClassroomModule } from './classroom/classroom.module';
 import { ExamModule } from './exam/exam.module';
+import { TaskModule } from './task/task.module';
 import entities from './entities';
 
 @Module({
@@ -32,6 +33,7 @@ import entities from './entities';
     SocketModule,
     ClassroomModule,
     ExamModule,
+    TaskModule,
   ],
   controllers: [AppController],
   providers: [AppService],
