@@ -33,4 +33,21 @@ export class TaskController {
     const username: any = req.query.username;
     return this.taskService.getTaskByUsername(username);
   }
+
+  @UseGuards(AccessTokenGuard)
+  @UsePipes(ValidationPipe)
+  @Post('updateCalenderList')
+  updateCalenderList(@Req() req: RawBodyRequest<Request>) {
+    const data: any = req.body;
+    const updateTaskListDto: any = data.body;
+    return this.taskService.updateCalenderList(updateTaskListDto);
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @UsePipes(ValidationPipe)
+  @Get('getCalenderByUsername')
+  getCalenderByUsername(@Req() req: Request) {
+    const username: any = req.query.username;
+    return this.taskService.getCalenderByUsername(username);
+  }
 }

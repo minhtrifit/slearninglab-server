@@ -14,3 +14,24 @@ export class Task {
   @Column()
   username: string;
 }
+
+@Entity()
+export class Calender {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  publicId: string;
+
+  @Column()
+  title: string;
+
+  @Column()
+  start: string;
+
+  @Column()
+  end: string;
+
+  @Column()
+  username: string;
+}
