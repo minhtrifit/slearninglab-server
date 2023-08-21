@@ -9,6 +9,7 @@ import { SocketModule } from './socket/socket.module';
 import { ClassroomModule } from './classroom/classroom.module';
 import { ExamModule } from './exam/exam.module';
 import { TaskModule } from './task/task.module';
+import { DocumentModule } from './document/document.module';
 import entities from './entities';
 
 @Module({
@@ -34,6 +35,7 @@ import entities from './entities';
     ClassroomModule,
     ExamModule,
     TaskModule,
+    DocumentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

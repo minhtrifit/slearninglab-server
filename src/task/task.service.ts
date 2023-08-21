@@ -17,10 +17,6 @@ export class TaskService {
     return await this.taskRepository.find();
   }
 
-  async getAllCalenders() {
-    return await this.calenderRepository.find();
-  }
-
   async getTaskByUsername(username: string) {
     return await this.taskRepository.find({
       where: {
@@ -35,21 +31,6 @@ export class TaskService {
         username: username,
       },
     });
-  }
-
-  async checkExistCalender(cal: any, username: string) {
-    const allCalenders = await this.getAllCalenders();
-    // eslint-disable-next-line no-var
-    for (var i = 0; i < allCalenders.length; ++i) {
-      if (
-        allCalenders[i].username === username &&
-        allCalenders[i].publicId === cal.publicId
-      ) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   async updateTaskList(updateTaskListDto: any) {
@@ -98,52 +79,18 @@ export class TaskService {
     const username = updateCalenderListDto.username;
     const calenderListByUsername = await this.getCalenderByUsername(username);
 
-    const allCalenders = await this.getAllCalenders();
+    // Delete old calender
+    await this.taskRepository
+      .createQueryBuilder()
+      .delete()
+      .from(Calender)
+      .where('username = :username', { username: username })
+      .execute();
 
-    if (calenderList.length < calenderListByUsername.length) {
-      console.log('Delete');
-      const newCalenderList = [];
-      // eslint-disable-next-line no-var
-      for (var i = 0; i < calenderListByUsername.length; ++i) {
-        // eslint-disable-next-line no-var
-        for (var j = 0; j < calenderList.length; ++j) {
-          if (calenderList[j].publicId === calenderListByUsername[i].publicId) {
-            newCalenderList.push({ ...calenderList[j], username: username });
-          }
-        }
-      }
-
-      // Delete old task list by username
-      await this.calenderRepository
-        .createQueryBuilder()
-        .delete()
-        .from(Calender)
-        .where('username = :username', { username: username })
-        .execute();
-
-      // Save new task list by username
-      this.calenderRepository.save(newCalenderList);
-    } else {
-      console.log('Add');
-
-      calenderList.map(async (cal) => {
-        if ((await this.checkExistCalender(cal, username)) === false) {
-          console.log('Save');
-          await this.calenderRepository.save({
-            ...cal,
-            username: username,
-          });
-        } else {
-          await this.calenderRepository
-            .createQueryBuilder()
-            .update(Calender)
-            .set({ start: cal.start, end: cal.end })
-            .where('publicId = :publicId', { publicId: cal.publicId })
-            .where('username = :username', { username: username })
-            .execute();
-        }
-      });
-    }
+    // Save new calender
+    calenderList.map(async (cal) => {
+      await this.calenderRepository.save({ ...cal, username: username });
+    });
 
     return updateCalenderListDto;
   }

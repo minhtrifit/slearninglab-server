@@ -18,6 +18,9 @@ export class Account {
   @Column()
   email: string;
 
+  @Column({ nullable: true, default: null })
+  avatar: string;
+
   @Column('text', { array: true })
   roles: Role[];
 }
