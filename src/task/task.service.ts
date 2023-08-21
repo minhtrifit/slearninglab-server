@@ -37,13 +37,18 @@ export class TaskService {
     });
   }
 
-  async checkExistCalender(cal: any) {
+  async checkExistCalender(cal: any, username: string) {
     const allCalenders = await this.getAllCalenders();
-    allCalenders.map((cal2) => {
-      if (cal2.username === cal.username && cal2.publicId === cal.publicId) {
+    // eslint-disable-next-line no-var
+    for (var i = 0; i < allCalenders.length; ++i) {
+      if (
+        allCalenders[i].username === username &&
+        allCalenders[i].publicId === cal.publicId
+      ) {
         return true;
       }
-    });
+    }
+
     return false;
   }
 
@@ -103,7 +108,7 @@ export class TaskService {
         // eslint-disable-next-line no-var
         for (var j = 0; j < calenderList.length; ++j) {
           if (calenderList[j].publicId === calenderListByUsername[i].publicId) {
-            newCalenderList.push(calenderList[j]);
+            newCalenderList.push({ ...calenderList[j], username: username });
           }
         }
       }
@@ -120,14 +125,22 @@ export class TaskService {
       this.calenderRepository.save(newCalenderList);
     } else {
       console.log('Add');
-      console.log(calenderList);
 
       calenderList.map(async (cal) => {
-        if (!this.checkExistCalender(cal)) {
+        if ((await this.checkExistCalender(cal, username)) === false) {
+          console.log('Save');
           await this.calenderRepository.save({
             ...cal,
             username: username,
           });
+        } else {
+          await this.calenderRepository
+            .createQueryBuilder()
+            .update(Calender)
+            .set({ start: cal.start, end: cal.end })
+            .where('publicId = :publicId', { publicId: cal.publicId })
+            .where('username = :username', { username: username })
+            .execute();
         }
       });
     }
