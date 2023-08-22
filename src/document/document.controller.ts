@@ -1,4 +1,7 @@
 import {
+  Get,
+  HttpCode,
+  Header,
   Req,
   Res,
   Controller,
@@ -8,6 +11,10 @@ import {
   UploadedFile,
   UploadedFiles,
   StreamableFile,
+  UsePipes,
+  UseGuards,
+  ValidationPipe,
+  RawBodyRequest,
 } from '@nestjs/common';
 import { createReadStream } from 'fs';
 import {
@@ -18,12 +25,20 @@ import {
 import { DocumentService } from './document.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { storageConfig } from 'src/helpers/multer.config';
+import { AccessTokenGuard } from 'src/auth/guard/accessToken.guard';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
+import { HasRoles } from 'src/auth/decorator/role.decorator';
+import { Role } from 'src/models/role.enum';
 import { extname, join } from 'path';
+import { Request } from 'express';
 
 @Controller('document')
 export class DocumentController {
   constructor(private readonly documentService: DocumentService) {}
 
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @UsePipes(ValidationPipe)
+  @HasRoles(Role.Teacher)
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -40,16 +55,23 @@ export class DocumentController {
       },
     }),
   )
-  uploadDocument(@Req() req: any, @UploadedFile() file: Express.Multer.File) {
+  async uploadDocument(
+    @Req() req: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     const classId = req.headers.classid;
     if (file !== undefined && !req.fileValidationError) {
       console.log(classId);
       console.log(file.destination + '/' + file.filename);
+      await this.documentService.saveDocument(classId, file.filename);
       return true;
     }
     return false;
   }
 
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @UsePipes(ValidationPipe)
+  @HasRoles(Role.Teacher)
   @Post('uploads')
   @UseInterceptors(
     FilesInterceptor('files', 20, {
@@ -66,24 +88,49 @@ export class DocumentController {
       },
     }),
   )
-  uploadMultiDocument(
+  async uploadMultiDocument(
     @Req() req: any,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     const classId = req.headers.classid;
     if (files.length !== 0 && !req.fileValidationError) {
       console.log(classId);
-      files.map((file) => {
-        console.log(file.destination + '/' + file.filename);
+      files.map(async (file) => {
+        // console.log(file.destination + '/' + file.filename);
+        await this.documentService.saveDocument(classId, file.filename);
       });
       return true;
     }
     return false;
   }
 
-  @Post('download')
-  streamable(@Res({ passthrough: true }) response: Response) {
-    const file = this.documentService.fileStream();
-    return new StreamableFile(file);
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @UsePipes(ValidationPipe)
+  @Get('download')
+  downloadDocument(@Req() req: Request, @Res() res) {
+    // console.log(req.headers.classid, req.headers.filename);
+    // res.download(`./upload/document/${req.headers.filename}`);
+    this.documentService.downloadDocument(
+      res,
+      req.headers.classid,
+      req.headers.filename,
+    );
+  }
+
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @UsePipes(ValidationPipe)
+  @Get('getDocumentByClassId')
+  getDocumentByClassId(@Req() req: Request) {
+    const classId: any = req.query.classId;
+    return this.documentService.getDocumentByClassId(classId);
+  }
+
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @UsePipes(ValidationPipe)
+  @HasRoles(Role.Teacher)
+  @Post('delete')
+  deleteDocument(@Req() req: RawBodyRequest<Request>) {
+    const documentId: string = req.body.body;
+    return this.documentService.deleteDocument(documentId);
   }
 }

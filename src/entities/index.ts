@@ -3,6 +3,7 @@ import { Classroom } from 'src/classroom/entities/classroom.entity';
 import { Attendance } from 'src/classroom/entities/classroom.entity';
 import { Exam, Question, Result } from 'src/exam/entities/exam.entity';
 import { Task, Calender } from 'src/task/entities/task.entity';
+import { Document } from 'src/document/entities/document.entity';
 
 const entities = [
   Account,
@@ -13,6 +14,7 @@ const entities = [
   Result,
   Task,
   Calender,
+  Document,
 ];
 
 export { Account };
@@ -23,4 +25,5 @@ export { Question };
 export { Result };
 export { Task };
 export { Calender };
+export { Document };
 export default entities;

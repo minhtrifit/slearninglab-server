@@ -1,27 +1,57 @@
-import { Injectable } from '@nestjs/common';
-import { createReadStream, readFileSync } from 'fs';
-import { join } from 'path';
+import { Injectable, BadRequestException, Res } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateDocumentDto } from './dto/create-document.dto';
+import { Repository, Not } from 'typeorm';
+
+import { Document } from './entities/document.entity';
 
 @Injectable()
 export class DocumentService {
-  constructor() {
-    //
+  constructor(
+    @InjectRepository(Document)
+    private readonly documentRepository: Repository<Document>,
+  ) {}
+
+  async saveDocument(classId: string, fileName: string) {
+    await this.documentRepository.save({
+      classId: classId,
+      fileName: fileName,
+      dateUploaded: new Date(),
+    });
   }
 
-  imageBuffer() {
-    return readFileSync(join(process.cwd(), 'notiz.png'));
+  async getDocumentByClassId(classId: string) {
+    return await this.documentRepository.find({
+      where: {
+        classId: classId,
+      },
+    });
   }
 
-  imageStream() {
-    return createReadStream(join(process.cwd(), 'notiz.png'));
+  async downloadDocument(res: any, classId: any, fileName: any) {
+    const checkFile = await this.documentRepository.find({
+      where: {
+        classId: classId,
+        fileName: fileName,
+      },
+    });
+
+    if (checkFile.length !== 0) res.download(`./upload/document/${fileName}`);
+    else throw new BadRequestException('Document not found');
   }
 
-  fileBuffer() {
-    return readFileSync(join(process.cwd(), 'package.json'));
-  }
+  async deleteDocument(documentId: string) {
+    try {
+      await this.documentRepository
+        .createQueryBuilder('exam')
+        .delete()
+        .from(Document)
+        .where('id = :id', { id: documentId })
+        .execute();
 
-  fileStream() {
-    return createReadStream(join(process.cwd(), './upload/document/test.pdf'));
+      return true;
+    } catch (error) {
+      throw new BadRequestException('Delete document failed');
+    }
   }
 }
