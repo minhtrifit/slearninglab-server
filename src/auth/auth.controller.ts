@@ -76,4 +76,11 @@ export class AuthController {
   checkRoles() {
     return 'Check teacher role ok';
   }
+
+  @UseGuards(AccessTokenGuard)
+  @Get('profile')
+  getUserProfile(@Req() req: any) {
+    const username: string = req.query.username;
+    return this.authService.getUserProfile(username);
+  }
 }

@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-import { Account } from '../entities/index';
+import { Account, Attendance, Result, Calender, Task } from '../entities/index';
 import {
   registerAccountDto,
   loginAccountDto,
@@ -25,6 +25,14 @@ export class AuthService {
   constructor(
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
+    @InjectRepository(Attendance)
+    private readonly attendanceRepository: Repository<Attendance>,
+    @InjectRepository(Result)
+    private readonly resultRepository: Repository<Result>,
+    @InjectRepository(Calender)
+    private readonly calenderRepository: Repository<Calender>,
+    @InjectRepository(Task)
+    private readonly taskRepository: Repository<Task>,
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
@@ -192,5 +200,51 @@ export class AuthService {
       message: 'Access token valid',
       data: await this.getUserByUsername(data?.username),
     };
+  }
+
+  async getUserProfile(username: string) {
+    const findUser = await this.accountRepository.findOne({
+      where: {
+        username: username,
+      },
+    });
+
+    const countAttendance = await this.attendanceRepository.find({
+      where: {
+        userJoinedId: username,
+      },
+    });
+
+    const countResult = await this.resultRepository.find({
+      where: {
+        usernameId: username,
+      },
+    });
+
+    const countCalender = await this.calenderRepository.find({
+      where: {
+        username: username,
+      },
+    });
+
+    const countTask = await this.taskRepository.find({
+      where: {
+        username: username,
+      },
+    });
+
+    if (findUser)
+      return {
+        username: findUser.username,
+        name: findUser.name,
+        id: findUser.id,
+        email: findUser.email,
+        roles: findUser.roles,
+        countAttendance: countAttendance?.length,
+        countResult: countResult?.length,
+        countCalender: countCalender?.length,
+        countTask: countTask?.length,
+      };
+    else throw new NotFoundException('User not found');
   }
 }
