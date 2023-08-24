@@ -1,4 +1,12 @@
-## .env file config
+## Client repo
+
+- Follow slearninglab client repo - [github](https://github.com/minhtrifit/slearninglab-client)
+
+## Install postgresql
+
+- Follow website - [postgresql](https://www.postgresql.org)
+
+## Config .env file in root dir
 
 ```bash
 CLIENT_URL=yourclienturl
