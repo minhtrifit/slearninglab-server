@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
 import { Classroom } from './entities/classroom.entity';
 import { Attendance } from './entities/classroom.entity';
+import { Result, Document, Exam } from 'src/entities';
 
 import { createClassDto } from './dto/create-classroom.dto';
 import { AttendanceType } from 'src/types';
@@ -19,6 +20,12 @@ export class ClassroomService {
     private readonly classroomRepository: Repository<Classroom>,
     @InjectRepository(Attendance)
     private readonly attendanceRepository: Repository<Attendance>,
+    @InjectRepository(Result)
+    private readonly resultRepository: Repository<Result>,
+    @InjectRepository(Document)
+    private readonly documentRepository: Repository<Document>,
+    @InjectRepository(Exam)
+    private readonly examRepository: Repository<Exam>,
   ) {}
 
   async createClassroom(classroom: createClassDto) {
@@ -169,5 +176,45 @@ export class ClassroomService {
     });
 
     return canJoinList;
+  }
+
+  async deleteClassById(classId: string) {
+    try {
+      // Delete document
+      await this.documentRepository
+        .createQueryBuilder('document')
+        .delete()
+        .from(Document)
+        .where('classId = :classId', { classId: classId })
+        .execute();
+
+      // Delete result
+      await this.resultRepository
+        .createQueryBuilder('result')
+        .delete()
+        .from(Result)
+        .where('classId = :classId', { classId: classId })
+        .execute();
+
+      // Delete exam
+      await this.resultRepository
+        .createQueryBuilder('exam')
+        .delete()
+        .from(Exam)
+        .where('classId = :classId', { classId: classId })
+        .execute();
+
+      // Delete exam
+      await this.resultRepository
+        .createQueryBuilder('classroom')
+        .delete()
+        .from(Classroom)
+        .where('id = :id', { id: classId })
+        .execute();
+
+      return classId;
+    } catch (error) {
+      throw new NotFoundException('Not found class');
+    }
   }
 }

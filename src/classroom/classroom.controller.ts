@@ -82,4 +82,14 @@ export class ClassroomController {
     const username: any = req.query.username;
     return this.classroomService.getClassCanJoinByUsername(username);
   }
+
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @UsePipes(ValidationPipe)
+  @HasRoles(Role.Teacher)
+  @Post('deleteClassById')
+  deleteClassById(@Req() req: RawBodyRequest<Request>) {
+    const data: any = req.body;
+    const classId: string = data.body;
+    return this.classroomService.deleteClassById(classId);
+  }
 }
