@@ -1,3 +1,19 @@
+## .env file config
+
+```bash
+CLIENT_URL=yourclienturl
+DB_HOST=yourdbhost
+DB_PORT=yourdbport
+DB_USERNAME=yourdbusername
+DB_PASSWORD=yourdbpassword
+DB_NAME=youdatabasename
+JWT_KEY_SECRET=yourjwtkey
+JWT_ACCESS_KEY=youraccesskey
+JWT_REFRESH_KEY=yourrefreshkey
+AUTH_EMAIL_USER=youremail@gmail.com
+AUTH_EMAIL_PASSWORD=youremailpassword
+```
+
 ## Installation
 
 ```bash
@@ -28,22 +44,6 @@ $ npm run test:e2e
 
 # test coverage
 $ npm run test:cov
-```
-
-## .env file config
-
-```bash
-CLIENT_URL=http://localhost:5173
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=yourdbpassword
-DB_NAME=youdatabasename
-JWT_KEY_SECRET=minhtrideptrai
-JWT_ACCESS_KEY=youraccesskey
-JWT_REFRESH_KEY=yourrefreshkey
-AUTH_EMAIL_USER=youremail@gmail.com
-AUTH_EMAIL_PASSWORD=youremailpassword
 ```
 
 ## Run with Dockerfile

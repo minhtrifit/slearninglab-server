@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    volumes:
+      - .:/usr/src/app
+    command: npm run start:dev
+    environment:
+      NODE_ENV: development
+      CLIENT_URL: yourclienturl
+      DB_HOST: yourdbhost
+      DB_PORT: yourdbport
+      DB_USERNAME: yourdbusername
+      DB_PASSWORD: yourdbpassword
+      DB_NAME: yourdbname
+      JWT_KEY_SECRET: yourjwtkey
+      JWT_ACCESS_KEY: youraccesskey
+      JWT_REFRESH_KEY: yourrefreshkey
+      AUTH_EMAIL_USER: youremailuser
+      AUTH_EMAIL_PASSWORD: youremailpassword
+    ports:
+      - 5501:5500
