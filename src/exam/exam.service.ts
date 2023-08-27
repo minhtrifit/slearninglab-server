@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
 
 import { Exam, Question, Result } from './entities/exam.entity';
+import { Classroom } from '../classroom/entities/classroom.entity';
 
 @Injectable()
 export class ExamService {
@@ -18,10 +19,20 @@ export class ExamService {
     private readonly questionRepository: Repository<Question>,
     @InjectRepository(Result)
     private readonly resultRepository: Repository<Result>,
+    @InjectRepository(Classroom)
+    private readonly classroomRepository: Repository<Classroom>,
   ) {}
 
   async getAllQuestion() {
     return await this.questionRepository.find();
+  }
+
+  async getAllExam() {
+    return await this.examRepository.find();
+  }
+
+  async getAllClass() {
+    return await this.classroomRepository.find();
   }
 
   async createExam(createExamDto: CreateExamDto) {
@@ -160,5 +171,40 @@ export class ExamService {
     } catch (error) {
       throw new BadRequestException('Delete exam failed');
     }
+  }
+
+  async getExamResultByUsername(username: string) {
+    const data = [];
+
+    const userResult = await this.resultRepository.find({
+      where: {
+        usernameId: username,
+      },
+    });
+
+    const examData = await this.getAllExam();
+    const classData = await this.getAllClass();
+
+    // eslint-disable-next-line no-var
+    for (var i = 0; i < userResult.length; ++i) {
+      // eslint-disable-next-line no-var
+      for (var j = 0; j < examData.length; ++j) {
+        // eslint-disable-next-line no-var
+        for (var k = 0; k < classData.length; ++k) {
+          if (
+            userResult[i].examId === examData[j].id &&
+            userResult[i].classId === classData[k].id
+          ) {
+            data.push({
+              ...userResult[i],
+              examInfo: examData[j],
+              classInfo: classData[k],
+            });
+          }
+        }
+      }
+    }
+
+    return data;
   }
 }

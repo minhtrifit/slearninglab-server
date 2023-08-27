@@ -76,4 +76,13 @@ export class ExamController {
     const examId: string = data.body?.examId;
     return this.examService.deleteExam(examId);
   }
+
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @UsePipes(ValidationPipe)
+  @HasRoles(Role.Teacher, Role.Student)
+  @Get('getExamResultByUsername')
+  getExamResultByUsername(@Req() req: any) {
+    const username: string = req.query.username;
+    return this.examService.getExamResultByUsername(username);
+  }
 }
