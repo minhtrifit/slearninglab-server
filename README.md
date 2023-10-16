@@ -4,6 +4,13 @@
 
 - Follow slearninglab client repo - [github](https://github.com/minhtrifit/slearninglab-client)
 
+***
+
+## Technical Stack
+<p align="left"> <a href="https://nestjs.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nestjs/nestjs-plain.svg" alt="nestjs" width="40" height="40"/> </a> <a href="https://www.postgresql.org" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original-wordmark.svg" alt="postgresql" width="40" height="40"/> </a> </p>
+
+***
+
 ## Install postgresql
 
 - Follow website - [postgresql](https://www.postgresql.org)
