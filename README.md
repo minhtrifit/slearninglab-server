@@ -1,21 +1,20 @@
-> # SLEARNING LAB SERVER
+# SLEARNING LAB SERVER DOCUMENTATION
 
-## Client repo
+![Thumbnail](./showcase/screenshot.png)
 
-- Follow slearninglab client repo - [github](https://github.com/minhtrifit/slearninglab-client)
+🎓 📚 Education & Learning support project app inspired from [Google classroom](https://classroom.google.com)
 
-***
+This project includes two repository (Client and Server), you can checkout **[client repository](https://github.com/minhtrifit/slearninglab-client)**
 
 ## Technical Stack
 <p align="left"> <a href="https://nestjs.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nestjs/nestjs-plain.svg" alt="nestjs" width="40" height="40"/> </a> <a href="https://www.postgresql.org" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original-wordmark.svg" alt="postgresql" width="40" height="40"/> </a> </p>
 
-***
+- [Nest.js](hhttps://nestjs.com) - A progressive Node.js framework for building efficient, reliable and scalable server-side applications.
+- [PostgreSQL](https://www.postgresql.org) - The World's Most Advanced Open Source Relational Database
 
-## Install postgresql
+## ⚙️ Config .env file
 
-- Follow website - [postgresql](https://www.postgresql.org)
-
-## Config .env file in root dir
+Config [.env]() file in root dir with path `./.env`
 
 ```bash
 CLIENT_URL=yourclienturl
@@ -31,13 +30,19 @@ AUTH_EMAIL_USER=youremail@gmail.com
 AUTH_EMAIL_PASSWORD=youremailpassword
 ```
 
-## Installation
+## 📦 Installation
 
-```bash
-$ npm install
+Intall packages & dependencies
+```console
+npm install
 ```
 
-## Running the app
+Or install packages with legacy peer dependencies.
+```console
+npm install --legacy-peer-deps
+```
+
+Run server project
 
 ```bash
 # development
@@ -50,7 +55,7 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Test
+Test server project
 
 ```bash
 # unit tests
@@ -63,13 +68,19 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Run with Dockerfile
+Run server project with Dockerfile
 
 ```bash
 $ docker run -p 5500:5500 slearninglab-api:1.0.0
 ```
 
-## Stay in touch
+## ▶️ YouTube Demo
 
-- Author - [minhtrifit](https://kamilmysliwiec.com)
-- Github - [https://github.com/minhtrifit](https://github.com/minhtrifit)
+[![Thumnail](https://img.youtube.com/vi/g9WHplySekY/0.jpg)](https://youtu.be/g9WHplySekY)
+
+## 💌 Contact
+
+- Author - [minhtrifit](https://minhtrifitdev.netlify.app)
+- [Github](https://github.com/minhtrifit)
+
+> CopyRight© minhtrifit
